@@ -1,0 +1,1388 @@
+import { S as SvelteComponentDev, i as init, s as safe_not_equal, d as dispatch_dev, C as validate_each_argument, v as validate_slots, M as createEventDispatcher, e as element, b as space, c as claim_element, f as children, h as claim_space, g as detach_dev, k as attr_dev, I as toggle_class, l as add_location, m as insert_dev, n as append_dev, J as listen_dev, N as group_outros, w as transition_out, O as check_outros, u as transition_in, D as destroy_each, G as create_slot, a as svg_element, z as set_style, t as text, j as claim_text, A as set_data_dev, H as update_slot, P as assign, Q as exclude_internal_props, p as create_component, q as claim_component, r as mount_component, R as get_spread_update, T as get_spread_object, x as destroy_component, U as bubble, B as query_selector_all, o as noop } from './client.cef5469e.js';
+import { p as posts } from './Tags.086ae81b.js';
+import { P as PostList, S as Sidebar, B as Bloghero } from './Bloghero.0555ff8a.js';
+
+function paginate ({ items, pageSize, currentPage }) {
+  return items
+    .slice(
+      (currentPage - 1) * pageSize,
+      (currentPage - 1) * pageSize + pageSize
+    )
+}
+
+const PREVIOUS_PAGE = 'PREVIOUS_PAGE';
+const NEXT_PAGE = 'NEXT_PAGE';
+const ELLIPSIS = 'ELLIPSIS';
+
+function generateNavigationOptions ({ totalItems, pageSize, currentPage, limit = null, showStepOptions = false })  {
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const limitThreshold = getLimitThreshold({ limit });
+  const limited = limit && totalPages > limitThreshold;
+  let options = limited
+    ? generateLimitedOptions({ totalPages, limit, currentPage })
+    : generateUnlimitedOptions({ totalPages });
+  return showStepOptions
+    ? addStepOptions({ options, currentPage, totalPages })
+    : options
+}
+
+function generateUnlimitedOptions ({ totalPages }) {
+  return new Array(totalPages)
+    .fill(null)
+    .map((value, index) => ({
+      type: 'number',
+      value: index + 1
+    }))
+}
+
+function generateLimitedOptions ({ totalPages, limit, currentPage }) {
+  const boundarySize = limit * 2 + 2;
+  const firstBoundary = 1 + boundarySize;
+  const lastBoundary = totalPages - boundarySize;
+  const totalShownPages = firstBoundary + 2;
+
+  if (currentPage <= firstBoundary - limit) {
+    return Array(totalShownPages)
+      .fill(null)
+      .map((value, index) => {
+        if (index === totalShownPages - 1) {
+          return {
+            type: 'number',
+            value: totalPages
+          }
+        } else if (index === totalShownPages - 2) {
+          return {
+            type: 'symbol',
+            symbol: ELLIPSIS,
+            value: firstBoundary + 1
+          }
+        }
+        return {
+          type: 'number',
+          value: index + 1
+        }
+      })
+  } else if (currentPage >= lastBoundary + limit) {
+    return Array(totalShownPages)
+      .fill(null)
+      .map((value, index) => {
+        if (index === 0) {
+          return {
+            type: 'number',
+            value: 1
+          }
+        } else if (index === 1) {
+          return {
+            type: 'symbol',
+            symbol: ELLIPSIS,
+            value: lastBoundary - 1
+          }
+        }
+        return {
+          type: 'number',
+          value: lastBoundary + index - 2
+        }
+      })
+  } else if (currentPage >= (firstBoundary - limit) && currentPage <= (lastBoundary + limit)) {
+    return Array(totalShownPages)
+      .fill(null)
+      .map((value, index) => {
+        if (index === 0) {
+          return {
+            type: 'number',
+            value: 1
+          }
+        } else if (index === 1) {
+          return {
+            type: 'symbol',
+            symbol: ELLIPSIS,
+            value: currentPage - limit + (index - 2)
+          }
+        } else if (index === totalShownPages - 1) {
+          return {
+            type: 'number',
+            value: totalPages
+          }
+        } else if (index === totalShownPages - 2) {
+          return {
+            type: 'symbol',
+            symbol: ELLIPSIS,
+            value: currentPage + limit + 1
+          }
+        }
+        return {
+          type: 'number',
+          value: currentPage - limit + (index - 2)
+        }
+      })
+  }
+}
+
+function addStepOptions ({ options, currentPage, totalPages }) {
+  return [
+    {
+      type: 'symbol',
+      symbol: PREVIOUS_PAGE,
+      value: currentPage <= 1 ? 1 : currentPage - 1
+    },
+    ...options,
+    {
+      type: 'symbol',
+      symbol: NEXT_PAGE,
+      value: currentPage >= totalPages ? totalPages : currentPage + 1
+    }
+  ]
+}
+
+function getLimitThreshold ({ limit }) {
+  const maximumUnlimitedPages = 3; // This means we cannot limit 3 pages or less
+  const numberOfBoundaryPages = 2; // The first and last pages are always shown
+  return limit * 2 + maximumUnlimitedPages + numberOfBoundaryPages
+}
+
+/* node_modules\svelte-paginate\src\PaginationNav.svelte generated by Svelte v3.29.4 */
+const file = "node_modules\\svelte-paginate\\src\\PaginationNav.svelte";
+const get_next_slot_changes = dirty => ({});
+const get_next_slot_context = ctx => ({});
+const get_prev_slot_changes = dirty => ({});
+const get_prev_slot_context = ctx => ({});
+const get_ellipsis_slot_changes = dirty => ({});
+const get_ellipsis_slot_context = ctx => ({});
+const get_number_slot_changes = dirty => ({ value: dirty & /*options*/ 2 });
+const get_number_slot_context = ctx => ({ value: /*option*/ ctx[12].value });
+
+function get_each_context(ctx, list, i) {
+	const child_ctx = ctx.slice();
+	child_ctx[12] = list[i];
+	return child_ctx;
+}
+
+// (68:72) 
+function create_if_block_3(ctx) {
+	let current;
+	const next_slot_template = /*#slots*/ ctx[9].next;
+	const next_slot = create_slot(next_slot_template, ctx, /*$$scope*/ ctx[8], get_next_slot_context);
+	const next_slot_or_fallback = next_slot || fallback_block_3(ctx);
+
+	const block = {
+		c: function create() {
+			if (next_slot_or_fallback) next_slot_or_fallback.c();
+		},
+		l: function claim(nodes) {
+			if (next_slot_or_fallback) next_slot_or_fallback.l(nodes);
+		},
+		m: function mount(target, anchor) {
+			if (next_slot_or_fallback) {
+				next_slot_or_fallback.m(target, anchor);
+			}
+
+			current = true;
+		},
+		p: function update(ctx, dirty) {
+			if (next_slot) {
+				if (next_slot.p && dirty & /*$$scope*/ 256) {
+					update_slot(next_slot, next_slot_template, ctx, /*$$scope*/ ctx[8], dirty, get_next_slot_changes, get_next_slot_context);
+				}
+			}
+		},
+		i: function intro(local) {
+			if (current) return;
+			transition_in(next_slot_or_fallback, local);
+			current = true;
+		},
+		o: function outro(local) {
+			transition_out(next_slot_or_fallback, local);
+			current = false;
+		},
+		d: function destroy(detaching) {
+			if (next_slot_or_fallback) next_slot_or_fallback.d(detaching);
+		}
+	};
+
+	dispatch_dev("SvelteRegisterBlock", {
+		block,
+		id: create_if_block_3.name,
+		type: "if",
+		source: "(68:72) ",
+		ctx
+	});
+
+	return block;
+}
+
+// (56:76) 
+function create_if_block_2(ctx) {
+	let current;
+	const prev_slot_template = /*#slots*/ ctx[9].prev;
+	const prev_slot = create_slot(prev_slot_template, ctx, /*$$scope*/ ctx[8], get_prev_slot_context);
+	const prev_slot_or_fallback = prev_slot || fallback_block_2(ctx);
+
+	const block = {
+		c: function create() {
+			if (prev_slot_or_fallback) prev_slot_or_fallback.c();
+		},
+		l: function claim(nodes) {
+			if (prev_slot_or_fallback) prev_slot_or_fallback.l(nodes);
+		},
+		m: function mount(target, anchor) {
+			if (prev_slot_or_fallback) {
+				prev_slot_or_fallback.m(target, anchor);
+			}
+
+			current = true;
+		},
+		p: function update(ctx, dirty) {
+			if (prev_slot) {
+				if (prev_slot.p && dirty & /*$$scope*/ 256) {
+					update_slot(prev_slot, prev_slot_template, ctx, /*$$scope*/ ctx[8], dirty, get_prev_slot_changes, get_prev_slot_context);
+				}
+			}
+		},
+		i: function intro(local) {
+			if (current) return;
+			transition_in(prev_slot_or_fallback, local);
+			current = true;
+		},
+		o: function outro(local) {
+			transition_out(prev_slot_or_fallback, local);
+			current = false;
+		},
+		d: function destroy(detaching) {
+			if (prev_slot_or_fallback) prev_slot_or_fallback.d(detaching);
+		}
+	};
+
+	dispatch_dev("SvelteRegisterBlock", {
+		block,
+		id: create_if_block_2.name,
+		type: "if",
+		source: "(56:76) ",
+		ctx
+	});
+
+	return block;
+}
+
+// (52:71) 
+function create_if_block_1(ctx) {
+	let current;
+	const ellipsis_slot_template = /*#slots*/ ctx[9].ellipsis;
+	const ellipsis_slot = create_slot(ellipsis_slot_template, ctx, /*$$scope*/ ctx[8], get_ellipsis_slot_context);
+	const ellipsis_slot_or_fallback = ellipsis_slot || fallback_block_1(ctx);
+
+	const block = {
+		c: function create() {
+			if (ellipsis_slot_or_fallback) ellipsis_slot_or_fallback.c();
+		},
+		l: function claim(nodes) {
+			if (ellipsis_slot_or_fallback) ellipsis_slot_or_fallback.l(nodes);
+		},
+		m: function mount(target, anchor) {
+			if (ellipsis_slot_or_fallback) {
+				ellipsis_slot_or_fallback.m(target, anchor);
+			}
+
+			current = true;
+		},
+		p: function update(ctx, dirty) {
+			if (ellipsis_slot) {
+				if (ellipsis_slot.p && dirty & /*$$scope*/ 256) {
+					update_slot(ellipsis_slot, ellipsis_slot_template, ctx, /*$$scope*/ ctx[8], dirty, get_ellipsis_slot_changes, get_ellipsis_slot_context);
+				}
+			}
+		},
+		i: function intro(local) {
+			if (current) return;
+			transition_in(ellipsis_slot_or_fallback, local);
+			current = true;
+		},
+		o: function outro(local) {
+			transition_out(ellipsis_slot_or_fallback, local);
+			current = false;
+		},
+		d: function destroy(detaching) {
+			if (ellipsis_slot_or_fallback) ellipsis_slot_or_fallback.d(detaching);
+		}
+	};
+
+	dispatch_dev("SvelteRegisterBlock", {
+		block,
+		id: create_if_block_1.name,
+		type: "if",
+		source: "(52:71) ",
+		ctx
+	});
+
+	return block;
+}
+
+// (48:6) {#if option.type === 'number'}
+function create_if_block(ctx) {
+	let current;
+	const number_slot_template = /*#slots*/ ctx[9].number;
+	const number_slot = create_slot(number_slot_template, ctx, /*$$scope*/ ctx[8], get_number_slot_context);
+	const number_slot_or_fallback = number_slot || fallback_block(ctx);
+
+	const block = {
+		c: function create() {
+			if (number_slot_or_fallback) number_slot_or_fallback.c();
+		},
+		l: function claim(nodes) {
+			if (number_slot_or_fallback) number_slot_or_fallback.l(nodes);
+		},
+		m: function mount(target, anchor) {
+			if (number_slot_or_fallback) {
+				number_slot_or_fallback.m(target, anchor);
+			}
+
+			current = true;
+		},
+		p: function update(ctx, dirty) {
+			if (number_slot) {
+				if (number_slot.p && dirty & /*$$scope, options*/ 258) {
+					update_slot(number_slot, number_slot_template, ctx, /*$$scope*/ ctx[8], dirty, get_number_slot_changes, get_number_slot_context);
+				}
+			} else {
+				if (number_slot_or_fallback && number_slot_or_fallback.p && dirty & /*options*/ 2) {
+					number_slot_or_fallback.p(ctx, dirty);
+				}
+			}
+		},
+		i: function intro(local) {
+			if (current) return;
+			transition_in(number_slot_or_fallback, local);
+			current = true;
+		},
+		o: function outro(local) {
+			transition_out(number_slot_or_fallback, local);
+			current = false;
+		},
+		d: function destroy(detaching) {
+			if (number_slot_or_fallback) number_slot_or_fallback.d(detaching);
+		}
+	};
+
+	dispatch_dev("SvelteRegisterBlock", {
+		block,
+		id: create_if_block.name,
+		type: "if",
+		source: "(48:6) {#if option.type === 'number'}",
+		ctx
+	});
+
+	return block;
+}
+
+// (69:26)            
+function fallback_block_3(ctx) {
+	let svg;
+	let path;
+
+	const block = {
+		c: function create() {
+			svg = svg_element("svg");
+			path = svg_element("path");
+			this.h();
+		},
+		l: function claim(nodes) {
+			svg = claim_element(nodes, "svg", { style: true, viewBox: true }, 1);
+			var svg_nodes = children(svg);
+			path = claim_element(svg_nodes, "path", { fill: true, d: true }, 1);
+			children(path).forEach(detach_dev);
+			svg_nodes.forEach(detach_dev);
+			this.h();
+		},
+		h: function hydrate() {
+			attr_dev(path, "fill", "#000000");
+			attr_dev(path, "d", "M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z");
+			add_location(path, file, 73, 12, 2306);
+			set_style(svg, "width", "24px");
+			set_style(svg, "height", "24px");
+			attr_dev(svg, "viewBox", "0 0 24 24");
+			add_location(svg, file, 69, 10, 2202);
+		},
+		m: function mount(target, anchor) {
+			insert_dev(target, svg, anchor);
+			append_dev(svg, path);
+		},
+		d: function destroy(detaching) {
+			if (detaching) detach_dev(svg);
+		}
+	};
+
+	dispatch_dev("SvelteRegisterBlock", {
+		block,
+		id: fallback_block_3.name,
+		type: "fallback",
+		source: "(69:26)            ",
+		ctx
+	});
+
+	return block;
+}
+
+// (57:26)            
+function fallback_block_2(ctx) {
+	let svg;
+	let path;
+
+	const block = {
+		c: function create() {
+			svg = svg_element("svg");
+			path = svg_element("path");
+			this.h();
+		},
+		l: function claim(nodes) {
+			svg = claim_element(nodes, "svg", { style: true, viewBox: true }, 1);
+			var svg_nodes = children(svg);
+			path = claim_element(svg_nodes, "path", { fill: true, d: true }, 1);
+			children(path).forEach(detach_dev);
+			svg_nodes.forEach(detach_dev);
+			this.h();
+		},
+		h: function hydrate() {
+			attr_dev(path, "fill", "#000000");
+			attr_dev(path, "d", "M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z");
+			add_location(path, file, 61, 12, 1929);
+			set_style(svg, "width", "24px");
+			set_style(svg, "height", "24px");
+			attr_dev(svg, "viewBox", "0 0 24 24");
+			add_location(svg, file, 57, 10, 1825);
+		},
+		m: function mount(target, anchor) {
+			insert_dev(target, svg, anchor);
+			append_dev(svg, path);
+		},
+		d: function destroy(detaching) {
+			if (detaching) detach_dev(svg);
+		}
+	};
+
+	dispatch_dev("SvelteRegisterBlock", {
+		block,
+		id: fallback_block_2.name,
+		type: "fallback",
+		source: "(57:26)            ",
+		ctx
+	});
+
+	return block;
+}
+
+// (53:30)            
+function fallback_block_1(ctx) {
+	let span;
+	let t;
+
+	const block = {
+		c: function create() {
+			span = element("span");
+			t = text("...");
+			this.h();
+		},
+		l: function claim(nodes) {
+			span = claim_element(nodes, "SPAN", {});
+			var span_nodes = children(span);
+			t = claim_text(span_nodes, "...");
+			span_nodes.forEach(detach_dev);
+			this.h();
+		},
+		h: function hydrate() {
+			add_location(span, file, 53, 10, 1678);
+		},
+		m: function mount(target, anchor) {
+			insert_dev(target, span, anchor);
+			append_dev(span, t);
+		},
+		d: function destroy(detaching) {
+			if (detaching) detach_dev(span);
+		}
+	};
+
+	dispatch_dev("SvelteRegisterBlock", {
+		block,
+		id: fallback_block_1.name,
+		type: "fallback",
+		source: "(53:30)            ",
+		ctx
+	});
+
+	return block;
+}
+
+// (49:51)            
+function fallback_block(ctx) {
+	let span;
+	let t_value = /*option*/ ctx[12].value + "";
+	let t;
+
+	const block = {
+		c: function create() {
+			span = element("span");
+			t = text(t_value);
+			this.h();
+		},
+		l: function claim(nodes) {
+			span = claim_element(nodes, "SPAN", {});
+			var span_nodes = children(span);
+			t = claim_text(span_nodes, t_value);
+			span_nodes.forEach(detach_dev);
+			this.h();
+		},
+		h: function hydrate() {
+			add_location(span, file, 49, 10, 1521);
+		},
+		m: function mount(target, anchor) {
+			insert_dev(target, span, anchor);
+			append_dev(span, t);
+		},
+		p: function update(ctx, dirty) {
+			if (dirty & /*options*/ 2 && t_value !== (t_value = /*option*/ ctx[12].value + "")) set_data_dev(t, t_value);
+		},
+		d: function destroy(detaching) {
+			if (detaching) detach_dev(span);
+		}
+	};
+
+	dispatch_dev("SvelteRegisterBlock", {
+		block,
+		id: fallback_block.name,
+		type: "fallback",
+		source: "(49:51)            ",
+		ctx
+	});
+
+	return block;
+}
+
+// (34:2) {#each options as option}
+function create_each_block(ctx) {
+	let span;
+	let current_block_type_index;
+	let if_block;
+	let t;
+	let current;
+	let mounted;
+	let dispose;
+	const if_block_creators = [create_if_block, create_if_block_1, create_if_block_2, create_if_block_3];
+	const if_blocks = [];
+
+	function select_block_type(ctx, dirty) {
+		if (/*option*/ ctx[12].type === "number") return 0;
+		if (/*option*/ ctx[12].type === "symbol" && /*option*/ ctx[12].symbol === ELLIPSIS) return 1;
+		if (/*option*/ ctx[12].type === "symbol" && /*option*/ ctx[12].symbol === PREVIOUS_PAGE) return 2;
+		if (/*option*/ ctx[12].type === "symbol" && /*option*/ ctx[12].symbol === NEXT_PAGE) return 3;
+		return -1;
+	}
+
+	if (~(current_block_type_index = select_block_type(ctx))) {
+		if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+	}
+
+	function click_handler(...args) {
+		return /*click_handler*/ ctx[10](/*option*/ ctx[12], ...args);
+	}
+
+	const block = {
+		c: function create() {
+			span = element("span");
+			if (if_block) if_block.c();
+			t = space();
+			this.h();
+		},
+		l: function claim(nodes) {
+			span = claim_element(nodes, "SPAN", { class: true });
+			var span_nodes = children(span);
+			if (if_block) if_block.l(span_nodes);
+			t = claim_space(span_nodes);
+			span_nodes.forEach(detach_dev);
+			this.h();
+		},
+		h: function hydrate() {
+			attr_dev(span, "class", "option");
+			toggle_class(span, "number", /*option*/ ctx[12].type === "number");
+			toggle_class(span, "prev", /*option*/ ctx[12].type === "symbol" && /*option*/ ctx[12].symbol === PREVIOUS_PAGE);
+			toggle_class(span, "next", /*option*/ ctx[12].type === "symbol" && /*option*/ ctx[12].symbol === NEXT_PAGE);
+			toggle_class(span, "disabled", /*option*/ ctx[12].type === "symbol" && /*option*/ ctx[12].symbol === NEXT_PAGE && /*currentPage*/ ctx[0] >= /*totalPages*/ ctx[2] || /*option*/ ctx[12].type === "symbol" && /*option*/ ctx[12].symbol === PREVIOUS_PAGE && /*currentPage*/ ctx[0] <= 1);
+			toggle_class(span, "ellipsis", /*option*/ ctx[12].type === "symbol" && /*option*/ ctx[12].symbol === ELLIPSIS);
+			toggle_class(span, "active", /*option*/ ctx[12].type === "number" && /*option*/ ctx[12].value === /*currentPage*/ ctx[0]);
+			add_location(span, file, 34, 4, 751);
+		},
+		m: function mount(target, anchor) {
+			insert_dev(target, span, anchor);
+
+			if (~current_block_type_index) {
+				if_blocks[current_block_type_index].m(span, null);
+			}
+
+			append_dev(span, t);
+			current = true;
+
+			if (!mounted) {
+				dispose = listen_dev(span, "click", click_handler, false, false, false);
+				mounted = true;
+			}
+		},
+		p: function update(new_ctx, dirty) {
+			ctx = new_ctx;
+			let previous_block_index = current_block_type_index;
+			current_block_type_index = select_block_type(ctx);
+
+			if (current_block_type_index === previous_block_index) {
+				if (~current_block_type_index) {
+					if_blocks[current_block_type_index].p(ctx, dirty);
+				}
+			} else {
+				if (if_block) {
+					group_outros();
+
+					transition_out(if_blocks[previous_block_index], 1, 1, () => {
+						if_blocks[previous_block_index] = null;
+					});
+
+					check_outros();
+				}
+
+				if (~current_block_type_index) {
+					if_block = if_blocks[current_block_type_index];
+
+					if (!if_block) {
+						if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+						if_block.c();
+					}
+
+					transition_in(if_block, 1);
+					if_block.m(span, t);
+				} else {
+					if_block = null;
+				}
+			}
+
+			if (dirty & /*options*/ 2) {
+				toggle_class(span, "number", /*option*/ ctx[12].type === "number");
+			}
+
+			if (dirty & /*options, PREVIOUS_PAGE*/ 2) {
+				toggle_class(span, "prev", /*option*/ ctx[12].type === "symbol" && /*option*/ ctx[12].symbol === PREVIOUS_PAGE);
+			}
+
+			if (dirty & /*options, NEXT_PAGE*/ 2) {
+				toggle_class(span, "next", /*option*/ ctx[12].type === "symbol" && /*option*/ ctx[12].symbol === NEXT_PAGE);
+			}
+
+			if (dirty & /*options, NEXT_PAGE, currentPage, totalPages, PREVIOUS_PAGE*/ 7) {
+				toggle_class(span, "disabled", /*option*/ ctx[12].type === "symbol" && /*option*/ ctx[12].symbol === NEXT_PAGE && /*currentPage*/ ctx[0] >= /*totalPages*/ ctx[2] || /*option*/ ctx[12].type === "symbol" && /*option*/ ctx[12].symbol === PREVIOUS_PAGE && /*currentPage*/ ctx[0] <= 1);
+			}
+
+			if (dirty & /*options, ELLIPSIS*/ 2) {
+				toggle_class(span, "ellipsis", /*option*/ ctx[12].type === "symbol" && /*option*/ ctx[12].symbol === ELLIPSIS);
+			}
+
+			if (dirty & /*options, currentPage*/ 3) {
+				toggle_class(span, "active", /*option*/ ctx[12].type === "number" && /*option*/ ctx[12].value === /*currentPage*/ ctx[0]);
+			}
+		},
+		i: function intro(local) {
+			if (current) return;
+			transition_in(if_block);
+			current = true;
+		},
+		o: function outro(local) {
+			transition_out(if_block);
+			current = false;
+		},
+		d: function destroy(detaching) {
+			if (detaching) detach_dev(span);
+
+			if (~current_block_type_index) {
+				if_blocks[current_block_type_index].d();
+			}
+
+			mounted = false;
+			dispose();
+		}
+	};
+
+	dispatch_dev("SvelteRegisterBlock", {
+		block,
+		id: create_each_block.name,
+		type: "each",
+		source: "(34:2) {#each options as option}",
+		ctx
+	});
+
+	return block;
+}
+
+function create_fragment(ctx) {
+	let div;
+	let current;
+	let each_value = /*options*/ ctx[1];
+	validate_each_argument(each_value);
+	let each_blocks = [];
+
+	for (let i = 0; i < each_value.length; i += 1) {
+		each_blocks[i] = create_each_block(get_each_context(ctx, each_value, i));
+	}
+
+	const out = i => transition_out(each_blocks[i], 1, 1, () => {
+		each_blocks[i] = null;
+	});
+
+	const block = {
+		c: function create() {
+			div = element("div");
+
+			for (let i = 0; i < each_blocks.length; i += 1) {
+				each_blocks[i].c();
+			}
+
+			this.h();
+		},
+		l: function claim(nodes) {
+			div = claim_element(nodes, "DIV", { class: true });
+			var div_nodes = children(div);
+
+			for (let i = 0; i < each_blocks.length; i += 1) {
+				each_blocks[i].l(div_nodes);
+			}
+
+			div_nodes.forEach(detach_dev);
+			this.h();
+		},
+		h: function hydrate() {
+			attr_dev(div, "class", "pagination-nav");
+			add_location(div, file, 32, 0, 690);
+		},
+		m: function mount(target, anchor) {
+			insert_dev(target, div, anchor);
+
+			for (let i = 0; i < each_blocks.length; i += 1) {
+				each_blocks[i].m(div, null);
+			}
+
+			current = true;
+		},
+		p: function update(ctx, [dirty]) {
+			if (dirty & /*options, PREVIOUS_PAGE, NEXT_PAGE, currentPage, totalPages, ELLIPSIS, handleOptionClick, $$scope*/ 271) {
+				each_value = /*options*/ ctx[1];
+				validate_each_argument(each_value);
+				let i;
+
+				for (i = 0; i < each_value.length; i += 1) {
+					const child_ctx = get_each_context(ctx, each_value, i);
+
+					if (each_blocks[i]) {
+						each_blocks[i].p(child_ctx, dirty);
+						transition_in(each_blocks[i], 1);
+					} else {
+						each_blocks[i] = create_each_block(child_ctx);
+						each_blocks[i].c();
+						transition_in(each_blocks[i], 1);
+						each_blocks[i].m(div, null);
+					}
+				}
+
+				group_outros();
+
+				for (i = each_value.length; i < each_blocks.length; i += 1) {
+					out(i);
+				}
+
+				check_outros();
+			}
+		},
+		i: function intro(local) {
+			if (current) return;
+
+			for (let i = 0; i < each_value.length; i += 1) {
+				transition_in(each_blocks[i]);
+			}
+
+			current = true;
+		},
+		o: function outro(local) {
+			each_blocks = each_blocks.filter(Boolean);
+
+			for (let i = 0; i < each_blocks.length; i += 1) {
+				transition_out(each_blocks[i]);
+			}
+
+			current = false;
+		},
+		d: function destroy(detaching) {
+			if (detaching) detach_dev(div);
+			destroy_each(each_blocks, detaching);
+		}
+	};
+
+	dispatch_dev("SvelteRegisterBlock", {
+		block,
+		id: create_fragment.name,
+		type: "component",
+		source: "",
+		ctx
+	});
+
+	return block;
+}
+
+function instance($$self, $$props, $$invalidate) {
+	let { $$slots: slots = {}, $$scope } = $$props;
+	validate_slots("PaginationNav", slots, ['number','ellipsis','prev','next']);
+	const dispatch = createEventDispatcher();
+	let { totalItems = 0 } = $$props;
+	let { pageSize = 1 } = $$props;
+	let { currentPage = 1 } = $$props;
+	let { limit = null } = $$props;
+	let { showStepOptions = false } = $$props;
+
+	function handleOptionClick(option) {
+		dispatch("setPage", { page: option.value });
+	}
+
+	const writable_props = ["totalItems", "pageSize", "currentPage", "limit", "showStepOptions"];
+
+	Object.keys($$props).forEach(key => {
+		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<PaginationNav> was created with unknown prop '${key}'`);
+	});
+
+	const click_handler = option => handleOptionClick(option);
+
+	$$self.$$set = $$props => {
+		if ("totalItems" in $$props) $$invalidate(4, totalItems = $$props.totalItems);
+		if ("pageSize" in $$props) $$invalidate(5, pageSize = $$props.pageSize);
+		if ("currentPage" in $$props) $$invalidate(0, currentPage = $$props.currentPage);
+		if ("limit" in $$props) $$invalidate(6, limit = $$props.limit);
+		if ("showStepOptions" in $$props) $$invalidate(7, showStepOptions = $$props.showStepOptions);
+		if ("$$scope" in $$props) $$invalidate(8, $$scope = $$props.$$scope);
+	};
+
+	$$self.$capture_state = () => ({
+		createEventDispatcher,
+		generateNavigationOptions,
+		PREVIOUS_PAGE,
+		NEXT_PAGE,
+		ELLIPSIS,
+		dispatch,
+		totalItems,
+		pageSize,
+		currentPage,
+		limit,
+		showStepOptions,
+		handleOptionClick,
+		options,
+		totalPages
+	});
+
+	$$self.$inject_state = $$props => {
+		if ("totalItems" in $$props) $$invalidate(4, totalItems = $$props.totalItems);
+		if ("pageSize" in $$props) $$invalidate(5, pageSize = $$props.pageSize);
+		if ("currentPage" in $$props) $$invalidate(0, currentPage = $$props.currentPage);
+		if ("limit" in $$props) $$invalidate(6, limit = $$props.limit);
+		if ("showStepOptions" in $$props) $$invalidate(7, showStepOptions = $$props.showStepOptions);
+		if ("options" in $$props) $$invalidate(1, options = $$props.options);
+		if ("totalPages" in $$props) $$invalidate(2, totalPages = $$props.totalPages);
+	};
+
+	let options;
+	let totalPages;
+
+	if ($$props && "$$inject" in $$props) {
+		$$self.$inject_state($$props.$$inject);
+	}
+
+	$$self.$$.update = () => {
+		if ($$self.$$.dirty & /*totalItems, pageSize, currentPage, limit, showStepOptions*/ 241) {
+			 $$invalidate(1, options = generateNavigationOptions({
+				totalItems,
+				pageSize,
+				currentPage,
+				limit,
+				showStepOptions
+			}));
+		}
+
+		if ($$self.$$.dirty & /*totalItems, pageSize*/ 48) {
+			 $$invalidate(2, totalPages = Math.ceil(totalItems / pageSize));
+		}
+	};
+
+	return [
+		currentPage,
+		options,
+		totalPages,
+		handleOptionClick,
+		totalItems,
+		pageSize,
+		limit,
+		showStepOptions,
+		$$scope,
+		slots,
+		click_handler
+	];
+}
+
+class PaginationNav extends SvelteComponentDev {
+	constructor(options) {
+		super(options);
+
+		init(this, options, instance, create_fragment, safe_not_equal, {
+			totalItems: 4,
+			pageSize: 5,
+			currentPage: 0,
+			limit: 6,
+			showStepOptions: 7
+		});
+
+		dispatch_dev("SvelteRegisterComponent", {
+			component: this,
+			tagName: "PaginationNav",
+			options,
+			id: create_fragment.name
+		});
+	}
+
+	get totalItems() {
+		throw new Error("<PaginationNav>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+	}
+
+	set totalItems(value) {
+		throw new Error("<PaginationNav>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+	}
+
+	get pageSize() {
+		throw new Error("<PaginationNav>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+	}
+
+	set pageSize(value) {
+		throw new Error("<PaginationNav>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+	}
+
+	get currentPage() {
+		throw new Error("<PaginationNav>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+	}
+
+	set currentPage(value) {
+		throw new Error("<PaginationNav>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+	}
+
+	get limit() {
+		throw new Error("<PaginationNav>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+	}
+
+	set limit(value) {
+		throw new Error("<PaginationNav>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+	}
+
+	get showStepOptions() {
+		throw new Error("<PaginationNav>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+	}
+
+	set showStepOptions(value) {
+		throw new Error("<PaginationNav>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+	}
+}
+
+/* node_modules\svelte-paginate\src\LightPaginationNav.svelte generated by Svelte v3.29.4 */
+const file$1 = "node_modules\\svelte-paginate\\src\\LightPaginationNav.svelte";
+
+function create_fragment$1(ctx) {
+	let div;
+	let paginationnav;
+	let current;
+	const paginationnav_spread_levels = [/*$$props*/ ctx[0]];
+	let paginationnav_props = {};
+
+	for (let i = 0; i < paginationnav_spread_levels.length; i += 1) {
+		paginationnav_props = assign(paginationnav_props, paginationnav_spread_levels[i]);
+	}
+
+	paginationnav = new PaginationNav({
+			props: paginationnav_props,
+			$$inline: true
+		});
+
+	paginationnav.$on("setPage", /*setPage_handler*/ ctx[1]);
+
+	const block = {
+		c: function create() {
+			div = element("div");
+			create_component(paginationnav.$$.fragment);
+			this.h();
+		},
+		l: function claim(nodes) {
+			div = claim_element(nodes, "DIV", { class: true });
+			var div_nodes = children(div);
+			claim_component(paginationnav.$$.fragment, div_nodes);
+			div_nodes.forEach(detach_dev);
+			this.h();
+		},
+		h: function hydrate() {
+			attr_dev(div, "class", "light-pagination-nav svelte-s5ru8s");
+			add_location(div, file$1, 4, 0, 73);
+		},
+		m: function mount(target, anchor) {
+			insert_dev(target, div, anchor);
+			mount_component(paginationnav, div, null);
+			current = true;
+		},
+		p: function update(ctx, [dirty]) {
+			const paginationnav_changes = (dirty & /*$$props*/ 1)
+			? get_spread_update(paginationnav_spread_levels, [get_spread_object(/*$$props*/ ctx[0])])
+			: {};
+
+			paginationnav.$set(paginationnav_changes);
+		},
+		i: function intro(local) {
+			if (current) return;
+			transition_in(paginationnav.$$.fragment, local);
+			current = true;
+		},
+		o: function outro(local) {
+			transition_out(paginationnav.$$.fragment, local);
+			current = false;
+		},
+		d: function destroy(detaching) {
+			if (detaching) detach_dev(div);
+			destroy_component(paginationnav);
+		}
+	};
+
+	dispatch_dev("SvelteRegisterBlock", {
+		block,
+		id: create_fragment$1.name,
+		type: "component",
+		source: "",
+		ctx
+	});
+
+	return block;
+}
+
+function instance$1($$self, $$props, $$invalidate) {
+	let { $$slots: slots = {}, $$scope } = $$props;
+	validate_slots("LightPaginationNav", slots, []);
+
+	function setPage_handler(event) {
+		bubble($$self, event);
+	}
+
+	$$self.$$set = $$new_props => {
+		$$invalidate(0, $$props = assign(assign({}, $$props), exclude_internal_props($$new_props)));
+	};
+
+	$$self.$capture_state = () => ({ PaginationNav });
+
+	$$self.$inject_state = $$new_props => {
+		$$invalidate(0, $$props = assign(assign({}, $$props), $$new_props));
+	};
+
+	if ($$props && "$$inject" in $$props) {
+		$$self.$inject_state($$props.$$inject);
+	}
+
+	$$props = exclude_internal_props($$props);
+	return [$$props, setPage_handler];
+}
+
+class LightPaginationNav extends SvelteComponentDev {
+	constructor(options) {
+		super(options);
+		init(this, options, instance$1, create_fragment$1, safe_not_equal, {});
+
+		dispatch_dev("SvelteRegisterComponent", {
+			component: this,
+			tagName: "LightPaginationNav",
+			options,
+			id: create_fragment$1.name
+		});
+	}
+}
+
+/* src\components\Bloglayout.svelte generated by Svelte v3.29.4 */
+const file$2 = "src\\components\\Bloglayout.svelte";
+
+function create_fragment$2(ctx) {
+	let section;
+	let div0;
+	let postlist;
+	let t0;
+	let lightpaginationnav;
+	let t1;
+	let div1;
+	let sidebar;
+	let current;
+
+	postlist = new PostList({
+			props: { posts: /*paginatedItems*/ ctx[1] },
+			$$inline: true
+		});
+
+	lightpaginationnav = new LightPaginationNav({
+			props: {
+				totalItems: /*items*/ ctx[2].length,
+				pageSize: /*pageSize*/ ctx[3],
+				currentPage: /*currentPage*/ ctx[0],
+				limit: 1,
+				showStepOptions: true
+			},
+			$$inline: true
+		});
+
+	lightpaginationnav.$on("setPage", /*setPage_handler*/ ctx[4]);
+	sidebar = new Sidebar({ $$inline: true });
+
+	const block = {
+		c: function create() {
+			section = element("section");
+			div0 = element("div");
+			create_component(postlist.$$.fragment);
+			t0 = space();
+			create_component(lightpaginationnav.$$.fragment);
+			t1 = space();
+			div1 = element("div");
+			create_component(sidebar.$$.fragment);
+			this.h();
+		},
+		l: function claim(nodes) {
+			section = claim_element(nodes, "SECTION", { class: true });
+			var section_nodes = children(section);
+			div0 = claim_element(section_nodes, "DIV", { class: true });
+			var div0_nodes = children(div0);
+			claim_component(postlist.$$.fragment, div0_nodes);
+			t0 = claim_space(div0_nodes);
+			claim_component(lightpaginationnav.$$.fragment, div0_nodes);
+			div0_nodes.forEach(detach_dev);
+			t1 = claim_space(section_nodes);
+			div1 = claim_element(section_nodes, "DIV", { class: true });
+			var div1_nodes = children(div1);
+			claim_component(sidebar.$$.fragment, div1_nodes);
+			div1_nodes.forEach(detach_dev);
+			section_nodes.forEach(detach_dev);
+			this.h();
+		},
+		h: function hydrate() {
+			attr_dev(div0, "class", "lg:px-16 px-6 flex flex-wrap justify-center my-1 w-full overflow-hidden sm:my-2 sm:px-2 sm:w-full md:my-2 md:px-2 md:w-2/3 lg:my-2 lg:w-2/3 xl:my-2 xl:px-2 xl:w-2/3");
+			add_location(div0, file$2, 15, 2, 453);
+			attr_dev(div1, "class", "container my-6 px-6 w-full overflow-hidden sm:my-8 sm:px-8 sm:w-full md:my-2 md:px-2 md:w-1/3 lg:my-2 lg:px-2 lg:w-1/3 xl:my-2 xl:px-2 xl:w-1/3");
+			add_location(div1, file$2, 28, 2, 904);
+			attr_dev(section, "class", "flex flex-wrap mx-2 overflow-hidden sm:mx-2 md:mx-2 lg:mx-2 xl:mx-2");
+			add_location(section, file$2, 12, 0, 359);
+		},
+		m: function mount(target, anchor) {
+			insert_dev(target, section, anchor);
+			append_dev(section, div0);
+			mount_component(postlist, div0, null);
+			append_dev(div0, t0);
+			mount_component(lightpaginationnav, div0, null);
+			append_dev(section, t1);
+			append_dev(section, div1);
+			mount_component(sidebar, div1, null);
+			current = true;
+		},
+		p: function update(ctx, [dirty]) {
+			const postlist_changes = {};
+			if (dirty & /*paginatedItems*/ 2) postlist_changes.posts = /*paginatedItems*/ ctx[1];
+			postlist.$set(postlist_changes);
+			const lightpaginationnav_changes = {};
+			if (dirty & /*currentPage*/ 1) lightpaginationnav_changes.currentPage = /*currentPage*/ ctx[0];
+			lightpaginationnav.$set(lightpaginationnav_changes);
+		},
+		i: function intro(local) {
+			if (current) return;
+			transition_in(postlist.$$.fragment, local);
+			transition_in(lightpaginationnav.$$.fragment, local);
+			transition_in(sidebar.$$.fragment, local);
+			current = true;
+		},
+		o: function outro(local) {
+			transition_out(postlist.$$.fragment, local);
+			transition_out(lightpaginationnav.$$.fragment, local);
+			transition_out(sidebar.$$.fragment, local);
+			current = false;
+		},
+		d: function destroy(detaching) {
+			if (detaching) detach_dev(section);
+			destroy_component(postlist);
+			destroy_component(lightpaginationnav);
+			destroy_component(sidebar);
+		}
+	};
+
+	dispatch_dev("SvelteRegisterBlock", {
+		block,
+		id: create_fragment$2.name,
+		type: "component",
+		source: "",
+		ctx
+	});
+
+	return block;
+}
+
+function instance$2($$self, $$props, $$invalidate) {
+	let { $$slots: slots = {}, $$scope } = $$props;
+	validate_slots("Bloglayout", slots, []);
+	let items = posts;
+	let currentPage = 1;
+	let pageSize = 4;
+	const writable_props = [];
+
+	Object.keys($$props).forEach(key => {
+		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Bloglayout> was created with unknown prop '${key}'`);
+	});
+
+	const setPage_handler = e => $$invalidate(0, currentPage = e.detail.page);
+
+	$$self.$capture_state = () => ({
+		Sidebar,
+		posts,
+		PostList,
+		paginate,
+		LightPaginationNav,
+		items,
+		currentPage,
+		pageSize,
+		paginatedItems
+	});
+
+	$$self.$inject_state = $$props => {
+		if ("items" in $$props) $$invalidate(2, items = $$props.items);
+		if ("currentPage" in $$props) $$invalidate(0, currentPage = $$props.currentPage);
+		if ("pageSize" in $$props) $$invalidate(3, pageSize = $$props.pageSize);
+		if ("paginatedItems" in $$props) $$invalidate(1, paginatedItems = $$props.paginatedItems);
+	};
+
+	let paginatedItems;
+
+	if ($$props && "$$inject" in $$props) {
+		$$self.$inject_state($$props.$$inject);
+	}
+
+	$$self.$$.update = () => {
+		if ($$self.$$.dirty & /*currentPage*/ 1) {
+			 $$invalidate(1, paginatedItems = paginate({ items, pageSize, currentPage }));
+		}
+	};
+
+	return [currentPage, paginatedItems, items, pageSize, setPage_handler];
+}
+
+class Bloglayout extends SvelteComponentDev {
+	constructor(options) {
+		super(options);
+		init(this, options, instance$2, create_fragment$2, safe_not_equal, {});
+
+		dispatch_dev("SvelteRegisterComponent", {
+			component: this,
+			tagName: "Bloglayout",
+			options,
+			id: create_fragment$2.name
+		});
+	}
+}
+
+/* src\routes\posts.svelte generated by Svelte v3.29.4 */
+
+function create_fragment$3(ctx) {
+	let t0;
+	let bloghero;
+	let t1;
+	let bloglayout;
+	let current;
+
+	bloghero = new Bloghero({
+			props: { title1: "Latest", title2: "Articles..." },
+			$$inline: true
+		});
+
+	bloglayout = new Bloglayout({ $$inline: true });
+
+	const block = {
+		c: function create() {
+			t0 = space();
+			create_component(bloghero.$$.fragment);
+			t1 = space();
+			create_component(bloglayout.$$.fragment);
+			this.h();
+		},
+		l: function claim(nodes) {
+			const head_nodes = query_selector_all("[data-svelte=\"svelte-1so41zt\"]", document.head);
+			head_nodes.forEach(detach_dev);
+			t0 = claim_space(nodes);
+			claim_component(bloghero.$$.fragment, nodes);
+			t1 = claim_space(nodes);
+			claim_component(bloglayout.$$.fragment, nodes);
+			this.h();
+		},
+		h: function hydrate() {
+			document.title = "Latest Articles...";
+		},
+		m: function mount(target, anchor) {
+			insert_dev(target, t0, anchor);
+			mount_component(bloghero, target, anchor);
+			insert_dev(target, t1, anchor);
+			mount_component(bloglayout, target, anchor);
+			current = true;
+		},
+		p: noop,
+		i: function intro(local) {
+			if (current) return;
+			transition_in(bloghero.$$.fragment, local);
+			transition_in(bloglayout.$$.fragment, local);
+			current = true;
+		},
+		o: function outro(local) {
+			transition_out(bloghero.$$.fragment, local);
+			transition_out(bloglayout.$$.fragment, local);
+			current = false;
+		},
+		d: function destroy(detaching) {
+			if (detaching) detach_dev(t0);
+			destroy_component(bloghero, detaching);
+			if (detaching) detach_dev(t1);
+			destroy_component(bloglayout, detaching);
+		}
+	};
+
+	dispatch_dev("SvelteRegisterBlock", {
+		block,
+		id: create_fragment$3.name,
+		type: "component",
+		source: "",
+		ctx
+	});
+
+	return block;
+}
+
+function instance$3($$self, $$props, $$invalidate) {
+	let { $$slots: slots = {}, $$scope } = $$props;
+	validate_slots("Posts", slots, []);
+	const writable_props = [];
+
+	Object.keys($$props).forEach(key => {
+		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Posts> was created with unknown prop '${key}'`);
+	});
+
+	$$self.$capture_state = () => ({ Bloglayout, Bloghero });
+	return [];
+}
+
+class Posts extends SvelteComponentDev {
+	constructor(options) {
+		super(options);
+		init(this, options, instance$3, create_fragment$3, safe_not_equal, {});
+
+		dispatch_dev("SvelteRegisterComponent", {
+			component: this,
+			tagName: "Posts",
+			options,
+			id: create_fragment$3.name
+		});
+	}
+}
+
+export default Posts;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoicG9zdHMuN2RmZmU5MDIuanMiLCJzb3VyY2VzIjpbIi4uLy4uLy4uL25vZGVfbW9kdWxlcy9zdmVsdGUtcGFnaW5hdGUvc3JjL3BhZ2luYXRlLmpzIiwiLi4vLi4vLi4vbm9kZV9tb2R1bGVzL3N2ZWx0ZS1wYWdpbmF0ZS9zcmMvc3ltYm9sVHlwZXMuanMiLCIuLi8uLi8uLi9ub2RlX21vZHVsZXMvc3ZlbHRlLXBhZ2luYXRlL3NyYy9nZW5lcmF0ZU5hdmlnYXRpb25PcHRpb25zLmpzIiwiLi4vLi4vLi4vbm9kZV9tb2R1bGVzL3N2ZWx0ZS1wYWdpbmF0ZS9zcmMvUGFnaW5hdGlvbk5hdi5zdmVsdGUiLCIuLi8uLi8uLi9ub2RlX21vZHVsZXMvc3ZlbHRlLXBhZ2luYXRlL3NyYy9MaWdodFBhZ2luYXRpb25OYXYuc3ZlbHRlIiwiLi4vLi4vLi4vc3JjL2NvbXBvbmVudHMvQmxvZ2xheW91dC5zdmVsdGUiXSwic291cmNlc0NvbnRlbnQiOlsiZXhwb3J0IGRlZmF1bHQgZnVuY3Rpb24gKHsgaXRlbXMsIHBhZ2VTaXplLCBjdXJyZW50UGFnZSB9KSB7XG4gIHJldHVybiBpdGVtc1xuICAgIC5zbGljZShcbiAgICAgIChjdXJyZW50UGFnZSAtIDEpICogcGFnZVNpemUsXG4gICAgICAoY3VycmVudFBhZ2UgLSAxKSAqIHBhZ2VTaXplICsgcGFnZVNpemVcbiAgICApXG59XG4iLCJleHBvcnQgY29uc3QgUFJFVklPVVNfUEFHRSA9ICdQUkVWSU9VU19QQUdFJ1xuZXhwb3J0IGNvbnN0IE5FWFRfUEFHRSA9ICdORVhUX1BBR0UnXG5leHBvcnQgY29uc3QgRUxMSVBTSVMgPSAnRUxMSVBTSVMnIiwiaW1wb3J0IHtcbiAgUFJFVklPVVNfUEFHRSxcbiAgTkVYVF9QQUdFLFxuICBFTExJUFNJU1xufSBmcm9tICcuLi9zcmMvc3ltYm9sVHlwZXMnXG5cbmV4cG9ydCBkZWZhdWx0IGZ1bmN0aW9uICh7IHRvdGFsSXRlbXMsIHBhZ2VTaXplLCBjdXJyZW50UGFnZSwgbGltaXQgPSBudWxsLCBzaG93U3RlcE9wdGlvbnMgPSBmYWxzZSB9KSAge1xuICBjb25zdCB0b3RhbFBhZ2VzID0gTWF0aC5jZWlsKHRvdGFsSXRlbXMgLyBwYWdlU2l6ZSlcbiAgY29uc3QgbGltaXRUaHJlc2hvbGQgPSBnZXRMaW1pdFRocmVzaG9sZCh7IGxpbWl0IH0pXG4gIGNvbnN0IGxpbWl0ZWQgPSBsaW1pdCAmJiB0b3RhbFBhZ2VzID4gbGltaXRUaHJlc2hvbGRcbiAgbGV0IG9wdGlvbnMgPSBsaW1pdGVkXG4gICAgPyBnZW5lcmF0ZUxpbWl0ZWRPcHRpb25zKHsgdG90YWxQYWdlcywgbGltaXQsIGN1cnJlbnRQYWdlIH0pXG4gICAgOiBnZW5lcmF0ZVVubGltaXRlZE9wdGlvbnMoeyB0b3RhbFBhZ2VzIH0pXG4gIHJldHVybiBzaG93U3RlcE9wdGlvbnNcbiAgICA/IGFkZFN0ZXBPcHRpb25zKHsgb3B0aW9ucywgY3VycmVudFBhZ2UsIHRvdGFsUGFnZXMgfSlcbiAgICA6IG9wdGlvbnNcbn1cblxuZnVuY3Rpb24gZ2VuZXJhdGVVbmxpbWl0ZWRPcHRpb25zICh7IHRvdGFsUGFnZXMgfSkge1xuICByZXR1cm4gbmV3IEFycmF5KHRvdGFsUGFnZXMpXG4gICAgLmZpbGwobnVsbClcbiAgICAubWFwKCh2YWx1ZSwgaW5kZXgpID0+ICh7XG4gICAgICB0eXBlOiAnbnVtYmVyJyxcbiAgICAgIHZhbHVlOiBpbmRleCArIDFcbiAgICB9KSlcbn1cblxuZnVuY3Rpb24gZ2VuZXJhdGVMaW1pdGVkT3B0aW9ucyAoeyB0b3RhbFBhZ2VzLCBsaW1pdCwgY3VycmVudFBhZ2UgfSkge1xuICBjb25zdCBib3VuZGFyeVNpemUgPSBsaW1pdCAqIDIgKyAyXG4gIGNvbnN0IGZpcnN0Qm91bmRhcnkgPSAxICsgYm91bmRhcnlTaXplXG4gIGNvbnN0IGxhc3RCb3VuZGFyeSA9IHRvdGFsUGFnZXMgLSBib3VuZGFyeVNpemVcbiAgY29uc3QgdG90YWxTaG93blBhZ2VzID0gZmlyc3RCb3VuZGFyeSArIDJcblxuICBpZiAoY3VycmVudFBhZ2UgPD0gZmlyc3RCb3VuZGFyeSAtIGxpbWl0KSB7XG4gICAgcmV0dXJuIEFycmF5KHRvdGFsU2hvd25QYWdlcylcbiAgICAgIC5maWxsKG51bGwpXG4gICAgICAubWFwKCh2YWx1ZSwgaW5kZXgpID0+IHtcbiAgICAgICAgaWYgKGluZGV4ID09PSB0b3RhbFNob3duUGFnZXMgLSAxKSB7XG4gICAgICAgICAgcmV0dXJuIHtcbiAgICAgICAgICAgIHR5cGU6ICdudW1iZXInLFxuICAgICAgICAgICAgdmFsdWU6IHRvdGFsUGFnZXNcbiAgICAgICAgICB9XG4gICAgICAgIH0gZWxzZSBpZiAoaW5kZXggPT09IHRvdGFsU2hvd25QYWdlcyAtIDIpIHtcbiAgICAgICAgICByZXR1cm4ge1xuICAgICAgICAgICAgdHlwZTogJ3N5bWJvbCcsXG4gICAgICAgICAgICBzeW1ib2w6IEVMTElQU0lTLFxuICAgICAgICAgICAgdmFsdWU6IGZpcnN0Qm91bmRhcnkgKyAxXG4gICAgICAgICAgfVxuICAgICAgICB9XG4gICAgICAgIHJldHVybiB7XG4gICAgICAgICAgdHlwZTogJ251bWJlcicsXG4gICAgICAgICAgdmFsdWU6IGluZGV4ICsgMVxuICAgICAgICB9XG4gICAgICB9KVxuICB9IGVsc2UgaWYgKGN1cnJlbnRQYWdlID49IGxhc3RCb3VuZGFyeSArIGxpbWl0KSB7XG4gICAgcmV0dXJuIEFycmF5KHRvdGFsU2hvd25QYWdlcylcbiAgICAgIC5maWxsKG51bGwpXG4gICAgICAubWFwKCh2YWx1ZSwgaW5kZXgpID0+IHtcbiAgICAgICAgaWYgKGluZGV4ID09PSAwKSB7XG4gICAgICAgICAgcmV0dXJuIHtcbiAgICAgICAgICAgIHR5cGU6ICdudW1iZXInLFxuICAgICAgICAgICAgdmFsdWU6IDFcbiAgICAgICAgICB9XG4gICAgICAgIH0gZWxzZSBpZiAoaW5kZXggPT09IDEpIHtcbiAgICAgICAgICByZXR1cm4ge1xuICAgICAgICAgICAgdHlwZTogJ3N5bWJvbCcsXG4gICAgICAgICAgICBzeW1ib2w6IEVMTElQU0lTLFxuICAgICAgICAgICAgdmFsdWU6IGxhc3RCb3VuZGFyeSAtIDFcbiAgICAgICAgICB9XG4gICAgICAgIH1cbiAgICAgICAgcmV0dXJuIHtcbiAgICAgICAgICB0eXBlOiAnbnVtYmVyJyxcbiAgICAgICAgICB2YWx1ZTogbGFzdEJvdW5kYXJ5ICsgaW5kZXggLSAyXG4gICAgICAgIH1cbiAgICAgIH0pXG4gIH0gZWxzZSBpZiAoY3VycmVudFBhZ2UgPj0gKGZpcnN0Qm91bmRhcnkgLSBsaW1pdCkgJiYgY3VycmVudFBhZ2UgPD0gKGxhc3RCb3VuZGFyeSArIGxpbWl0KSkge1xuICAgIHJldHVybiBBcnJheSh0b3RhbFNob3duUGFnZXMpXG4gICAgICAuZmlsbChudWxsKVxuICAgICAgLm1hcCgodmFsdWUsIGluZGV4KSA9PiB7XG4gICAgICAgIGlmIChpbmRleCA9PT0gMCkge1xuICAgICAgICAgIHJldHVybiB7XG4gICAgICAgICAgICB0eXBlOiAnbnVtYmVyJyxcbiAgICAgICAgICAgIHZhbHVlOiAxXG4gICAgICAgICAgfVxuICAgICAgICB9IGVsc2UgaWYgKGluZGV4ID09PSAxKSB7XG4gICAgICAgICAgcmV0dXJuIHtcbiAgICAgICAgICAgIHR5cGU6ICdzeW1ib2wnLFxuICAgICAgICAgICAgc3ltYm9sOiBFTExJUFNJUyxcbiAgICAgICAgICAgIHZhbHVlOiBjdXJyZW50UGFnZSAtIGxpbWl0ICsgKGluZGV4IC0gMilcbiAgICAgICAgICB9XG4gICAgICAgIH0gZWxzZSBpZiAoaW5kZXggPT09IHRvdGFsU2hvd25QYWdlcyAtIDEpIHtcbiAgICAgICAgICByZXR1cm4ge1xuICAgICAgICAgICAgdHlwZTogJ251bWJlcicsXG4gICAgICAgICAgICB2YWx1ZTogdG90YWxQYWdlc1xuICAgICAgICAgIH1cbiAgICAgICAgfSBlbHNlIGlmIChpbmRleCA9PT0gdG90YWxTaG93blBhZ2VzIC0gMikge1xuICAgICAgICAgIHJldHVybiB7XG4gICAgICAgICAgICB0eXBlOiAnc3ltYm9sJyxcbiAgICAgICAgICAgIHN5bWJvbDogRUxMSVBTSVMsXG4gICAgICAgICAgICB2YWx1ZTogY3VycmVudFBhZ2UgKyBsaW1pdCArIDFcbiAgICAgICAgICB9XG4gICAgICAgIH1cbiAgICAgICAgcmV0dXJuIHtcbiAgICAgICAgICB0eXBlOiAnbnVtYmVyJyxcbiAgICAgICAgICB2YWx1ZTogY3VycmVudFBhZ2UgLSBsaW1pdCArIChpbmRleCAtIDIpXG4gICAgICAgIH1cbiAgICAgIH0pXG4gIH1cbn1cblxuZnVuY3Rpb24gYWRkU3RlcE9wdGlvbnMgKHsgb3B0aW9ucywgY3VycmVudFBhZ2UsIHRvdGFsUGFnZXMgfSkge1xuICByZXR1cm4gW1xuICAgIHtcbiAgICAgIHR5cGU6ICdzeW1ib2wnLFxuICAgICAgc3ltYm9sOiBQUkVWSU9VU19QQUdFLFxuICAgICAgdmFsdWU6IGN1cnJlbnRQYWdlIDw9IDEgPyAxIDogY3VycmVudFBhZ2UgLSAxXG4gICAgfSxcbiAgICAuLi5vcHRpb25zLFxuICAgIHtcbiAgICAgIHR5cGU6ICdzeW1ib2wnLFxuICAgICAgc3ltYm9sOiBORVhUX1BBR0UsXG4gICAgICB2YWx1ZTogY3VycmVudFBhZ2UgPj0gdG90YWxQYWdlcyA/IHRvdGFsUGFnZXMgOiBjdXJyZW50UGFnZSArIDFcbiAgICB9XG4gIF1cbn1cblxuZnVuY3Rpb24gZ2V0TGltaXRUaHJlc2hvbGQgKHsgbGltaXQgfSkge1xuICBjb25zdCBtYXhpbXVtVW5saW1pdGVkUGFnZXMgPSAzIC8vIFRoaXMgbWVhbnMgd2UgY2Fubm90IGxpbWl0IDMgcGFnZXMgb3IgbGVzc1xuICBjb25zdCBudW1iZXJPZkJvdW5kYXJ5UGFnZXMgPSAyIC8vIFRoZSBmaXJzdCBhbmQgbGFzdCBwYWdlcyBhcmUgYWx3YXlzIHNob3duXG4gIHJldHVybiBsaW1pdCAqIDIgKyBtYXhpbXVtVW5saW1pdGVkUGFnZXMgKyBudW1iZXJPZkJvdW5kYXJ5UGFnZXNcbn1cbiIsIjxzY3JpcHQ+XG4gIGltcG9ydCB7IGNyZWF0ZUV2ZW50RGlzcGF0Y2hlciB9IGZyb20gJ3N2ZWx0ZSdcbiAgaW1wb3J0IGdlbmVyYXRlTmF2aWdhdGlvbk9wdGlvbnMgZnJvbSAnLi9nZW5lcmF0ZU5hdmlnYXRpb25PcHRpb25zJ1xuICBpbXBvcnQge1xuICAgIFBSRVZJT1VTX1BBR0UsXG4gICAgTkVYVF9QQUdFLFxuICAgIEVMTElQU0lTXG4gIH0gZnJvbSAnLi4vc3JjL3N5bWJvbFR5cGVzJ1xuXG4gIGNvbnN0IGRpc3BhdGNoID0gY3JlYXRlRXZlbnREaXNwYXRjaGVyKClcblxuICBleHBvcnQgbGV0IHRvdGFsSXRlbXMgPSAwXG4gIGV4cG9ydCBsZXQgcGFnZVNpemUgPSAxXG4gIGV4cG9ydCBsZXQgY3VycmVudFBhZ2UgPSAxXG4gIGV4cG9ydCBsZXQgbGltaXQgPSBudWxsXG4gIGV4cG9ydCBsZXQgc2hvd1N0ZXBPcHRpb25zID0gZmFsc2VcblxuICAkOiBvcHRpb25zID0gZ2VuZXJhdGVOYXZpZ2F0aW9uT3B0aW9ucyh7XG4gICAgdG90YWxJdGVtcyxcbiAgICBwYWdlU2l6ZSxcbiAgICBjdXJyZW50UGFnZSxcbiAgICBsaW1pdCxcbiAgICBzaG93U3RlcE9wdGlvbnNcbiAgfSlcblxuICAkOiB0b3RhbFBhZ2VzID0gTWF0aC5jZWlsKHRvdGFsSXRlbXMgLyBwYWdlU2l6ZSlcblxuICBmdW5jdGlvbiBoYW5kbGVPcHRpb25DbGljayAob3B0aW9uKSB7XG4gICAgZGlzcGF0Y2goJ3NldFBhZ2UnLCB7IHBhZ2U6IG9wdGlvbi52YWx1ZSB9KVxuICB9XG48L3NjcmlwdD5cblxuPGRpdiBjbGFzcz1cInBhZ2luYXRpb24tbmF2XCI+XG4gIHsjZWFjaCBvcHRpb25zIGFzIG9wdGlvbn1cbiAgICA8c3BhblxuICAgICAgY2xhc3M9XCJvcHRpb25cIlxuICAgICAgY2xhc3M6bnVtYmVyPVwie29wdGlvbi50eXBlID09PSAnbnVtYmVyJ31cIlxuICAgICAgY2xhc3M6cHJldj1cIntvcHRpb24udHlwZSA9PT0gJ3N5bWJvbCcgJiYgb3B0aW9uLnN5bWJvbCA9PT0gUFJFVklPVVNfUEFHRX1cIlxuICAgICAgY2xhc3M6bmV4dD1cIntvcHRpb24udHlwZSA9PT0gJ3N5bWJvbCcgJiYgb3B0aW9uLnN5bWJvbCA9PT0gTkVYVF9QQUdFfVwiXG4gICAgICBjbGFzczpkaXNhYmxlZD1cIntcbiAgICAgICAgKG9wdGlvbi50eXBlID09PSAnc3ltYm9sJyAmJiBvcHRpb24uc3ltYm9sID09PSBORVhUX1BBR0UgJiYgY3VycmVudFBhZ2UgPj0gdG90YWxQYWdlcykgfHxcbiAgICAgICAgKG9wdGlvbi50eXBlID09PSAnc3ltYm9sJyAmJiBvcHRpb24uc3ltYm9sID09PSBQUkVWSU9VU19QQUdFICYmIGN1cnJlbnRQYWdlIDw9IDEpXG4gICAgICB9XCJcbiAgICAgIGNsYXNzOmVsbGlwc2lzPVwie29wdGlvbi50eXBlID09PSAnc3ltYm9sJyAmJiBvcHRpb24uc3ltYm9sID09PSBFTExJUFNJU31cIlxuICAgICAgY2xhc3M6YWN0aXZlPVwie29wdGlvbi50eXBlID09PSAnbnVtYmVyJyAmJiBvcHRpb24udmFsdWUgPT09IGN1cnJlbnRQYWdlfVwiXG4gICAgICBvbjpjbGljaz1cInsoKSA9PiBoYW5kbGVPcHRpb25DbGljayhvcHRpb24pfVwiXG4gICAgPlxuICAgICAgeyNpZiBvcHRpb24udHlwZSA9PT0gJ251bWJlcid9XG4gICAgICAgIDxzbG90IG5hbWU9XCJudW1iZXJcIiB2YWx1ZT1cIntvcHRpb24udmFsdWV9XCI+XG4gICAgICAgICAgPHNwYW4+e29wdGlvbi52YWx1ZX08L3NwYW4+XG4gICAgICAgIDwvc2xvdD5cbiAgICAgIHs6ZWxzZSBpZiBvcHRpb24udHlwZSA9PT0gJ3N5bWJvbCcgJiYgb3B0aW9uLnN5bWJvbCA9PT0gRUxMSVBTSVN9XG4gICAgICAgIDxzbG90IG5hbWU9XCJlbGxpcHNpc1wiPlxuICAgICAgICAgIDxzcGFuPi4uLjwvc3Bhbj5cbiAgICAgICAgPC9zbG90PlxuICAgICAgezplbHNlIGlmIG9wdGlvbi50eXBlID09PSAnc3ltYm9sJyAmJiBvcHRpb24uc3ltYm9sID09PSBQUkVWSU9VU19QQUdFfVxuICAgICAgICA8c2xvdCBuYW1lPVwicHJldlwiPlxuICAgICAgICAgIDxzdmdcbiAgICAgICAgICAgIHN0eWxlPVwid2lkdGg6MjRweDtoZWlnaHQ6MjRweFwiXG4gICAgICAgICAgICB2aWV3Qm94PVwiMCAwIDI0IDI0XCJcbiAgICAgICAgICA+XG4gICAgICAgICAgICA8cGF0aFxuICAgICAgICAgICAgICBmaWxsPVwiIzAwMDAwMFwiXG4gICAgICAgICAgICAgIGQ9XCJNMTUuNDEsMTYuNThMMTAuODMsMTJMMTUuNDEsNy40MUwxNCw2TDgsMTJMMTQsMThMMTUuNDEsMTYuNThaXCJcbiAgICAgICAgICAgIC8+XG4gICAgICAgICAgPC9zdmc+XG4gICAgICAgIDwvc2xvdD5cbiAgICAgIHs6ZWxzZSBpZiBvcHRpb24udHlwZSA9PT0gJ3N5bWJvbCcgJiYgb3B0aW9uLnN5bWJvbCA9PT0gTkVYVF9QQUdFfVxuICAgICAgICA8c2xvdCBuYW1lPVwibmV4dFwiPlxuICAgICAgICAgIDxzdmdcbiAgICAgICAgICAgIHN0eWxlPVwid2lkdGg6MjRweDtoZWlnaHQ6MjRweFwiXG4gICAgICAgICAgICB2aWV3Qm94PVwiMCAwIDI0IDI0XCJcbiAgICAgICAgICA+XG4gICAgICAgICAgICA8cGF0aFxuICAgICAgICAgICAgICBmaWxsPVwiIzAwMDAwMFwiXG4gICAgICAgICAgICAgIGQ9XCJNOC41OSwxNi41OEwxMy4xNywxMkw4LjU5LDcuNDFMMTAsNkwxNiwxMkwxMCwxOEw4LjU5LDE2LjU4WlwiXG4gICAgICAgICAgICAvPlxuICAgICAgICAgIDwvc3ZnPlxuICAgICAgICA8L3Nsb3Q+XG4gICAgICB7L2lmfVxuICAgIDwvc3Bhbj5cbiAgey9lYWNofVxuPC9kaXY+IiwiPHNjcmlwdD5cbiAgaW1wb3J0IFBhZ2luYXRpb25OYXYgZnJvbSAnLi9QYWdpbmF0aW9uTmF2LnN2ZWx0ZSdcbjwvc2NyaXB0PlxuXG48ZGl2IGNsYXNzPVwibGlnaHQtcGFnaW5hdGlvbi1uYXZcIj5cbiAgPFBhZ2luYXRpb25OYXZcbiAgICB7Li4uJCRwcm9wc31cbiAgICBvbjpzZXRQYWdlXG4gIC8+XG48L2Rpdj5cblxuPHN0eWxlPlxuLmxpZ2h0LXBhZ2luYXRpb24tbmF2IDpnbG9iYWwoLnBhZ2luYXRpb24tbmF2KSB7XG4gIGRpc3BsYXk6IGZsZXg7XG4gIGp1c3RpZnktY29udGVudDogY2VudGVyO1xuICBiYWNrZ3JvdW5kOiAjRkZGO1xuICBib3JkZXItcmFkaXVzOiAzcHg7XG4gIGJveC1zaGFkb3c6IDAgMXB4IDJweCByZ2JhKDAsIDAsIDAsIDAuMyk7XG59XG4ubGlnaHQtcGFnaW5hdGlvbi1uYXYgOmdsb2JhbCgub3B0aW9uKSB7XG4gIHBhZGRpbmc6IDEwcHg7XG4gIGRpc3BsYXk6IGZsZXg7XG4gIGFsaWduLWl0ZW1zOiBjZW50ZXI7XG4gIGp1c3RpZnktY29udGVudDogY2VudGVyO1xuICB0cmFuc2l0aW9uOiAwLjJzIGFsbCBlYXNlLW91dDtcbiAgdXNlci1zZWxlY3Q6IG5vbmU7XG4gIGNvbG9yOiBoc2woMjAwLCA5MCUsIDEwJSk7XG59XG5cbi5saWdodC1wYWdpbmF0aW9uLW5hdiA6Z2xvYmFsKC5vcHRpb24ubnVtYmVyKSxcbi5saWdodC1wYWdpbmF0aW9uLW5hdiA6Z2xvYmFsKC5vcHRpb24uZWxsaXBzaXMpIHtcbiAgcGFkZGluZzogMTBweCAxNXB4O1xufVxuLmxpZ2h0LXBhZ2luYXRpb24tbmF2IDpnbG9iYWwoLm9wdGlvbjpob3Zlcikge1xuICBiYWNrZ3JvdW5kOiByZ2JhKDAsIDAsIDAsIDAuMSk7XG4gIGN1cnNvcjogcG9pbnRlcjtcbn1cbi5saWdodC1wYWdpbmF0aW9uLW5hdiA6Z2xvYmFsKC5vcHRpb24uYWN0aXZlKSB7XG4gIGNvbG9yOiBoc2woMjAwLCA3MCUsIDUwJSk7XG59XG48L3N0eWxlPiIsIjxzY3JpcHQ+XHJcbiAgaW1wb3J0IFNpZGViYXIgZnJvbSBcIi4vU2lkZWJhci5zdmVsdGVcIjtcclxuICBpbXBvcnQgeyBwb3N0cyB9IGZyb20gXCIuLi9wb3N0cy5qc1wiO1xyXG4gIGltcG9ydCBQb3N0TGlzdCBmcm9tIFwiLi9ibG9nL1Bvc3RMaXN0LnN2ZWx0ZVwiO1xyXG4gIGltcG9ydCB7IHBhZ2luYXRlLCBMaWdodFBhZ2luYXRpb25OYXYgfSBmcm9tIFwic3ZlbHRlLXBhZ2luYXRlXCI7XHJcblxyXG4gIGxldCBpdGVtcyA9IHBvc3RzO1xyXG4gIGxldCBjdXJyZW50UGFnZSA9IDE7XHJcbiAgbGV0IHBhZ2VTaXplID0gNDtcclxuICAkOiBwYWdpbmF0ZWRJdGVtcyA9IHBhZ2luYXRlKHsgaXRlbXMsIHBhZ2VTaXplLCBjdXJyZW50UGFnZSB9KTtcclxuPC9zY3JpcHQ+XHJcblxyXG48c2VjdGlvblxyXG4gIGNsYXNzPVwiZmxleCBmbGV4LXdyYXAgbXgtMiBvdmVyZmxvdy1oaWRkZW4gc206bXgtMiBtZDpteC0yIGxnOm14LTIgeGw6bXgtMlwiXHJcbj5cclxuICA8ZGl2XHJcbiAgICBjbGFzcz1cImxnOnB4LTE2IHB4LTYgZmxleCBmbGV4LXdyYXAganVzdGlmeS1jZW50ZXIgbXktMSB3LWZ1bGwgb3ZlcmZsb3ctaGlkZGVuIHNtOm15LTIgc206cHgtMiBzbTp3LWZ1bGwgbWQ6bXktMiBtZDpweC0yIG1kOnctMi8zIGxnOm15LTIgbGc6dy0yLzMgeGw6bXktMiB4bDpweC0yIHhsOnctMi8zXCJcclxuICA+XHJcbiAgICA8UG9zdExpc3QgcG9zdHM9e3BhZ2luYXRlZEl0ZW1zfSAvPlxyXG4gICAgPExpZ2h0UGFnaW5hdGlvbk5hdlxyXG4gICAgICB0b3RhbEl0ZW1zPXtpdGVtcy5sZW5ndGh9XHJcbiAgICAgIHtwYWdlU2l6ZX1cclxuICAgICAge2N1cnJlbnRQYWdlfVxyXG4gICAgICBsaW1pdD17MX1cclxuICAgICAgc2hvd1N0ZXBPcHRpb25zPXt0cnVlfVxyXG4gICAgICBvbjpzZXRQYWdlPXsoZSkgPT4gKGN1cnJlbnRQYWdlID0gZS5kZXRhaWwucGFnZSl9XHJcbiAgICAvPlxyXG4gIDwvZGl2PlxyXG4gIDxkaXZcclxuICAgIGNsYXNzPVwiY29udGFpbmVyIG15LTYgcHgtNiB3LWZ1bGwgb3ZlcmZsb3ctaGlkZGVuIHNtOm15LTggc206cHgtOCBzbTp3LWZ1bGwgbWQ6bXktMiBtZDpweC0yIG1kOnctMS8zIGxnOm15LTIgbGc6cHgtMiBsZzp3LTEvMyB4bDpteS0yIHhsOnB4LTIgeGw6dy0xLzNcIlxyXG4gID5cclxuICAgIDxTaWRlYmFyIC8+XHJcbiAgPC9kaXY+XHJcbjwvc2VjdGlvbj5cclxuXHJcbjwhLS0gPHNlY3Rpb24gY2xhc3M9XCJ0ZXh0LWdyYXktNjAwIGJvZHktZm9udCByZWxhdGl2ZSBtYi00XCI+XHJcbiAgPGRpdiBjbGFzcz1cImNvbnRhaW5lciBteC1hdXRvIGZsZXggc206ZmxleC1ub3dyYXAgZmxleC13cmFwIGl0ZW1zLWVuZFwiPlxyXG4gICAgPGRpdlxyXG4gICAgICBjbGFzcz1cImxnOnctMy80IG1kOnctMi8zIGJnLWdyYXktNTAgcm91bmRlZC1sZyBvdmVyZmxvdy1oaWRkZW4gc206bXItMTAgcC0xMCBmbGV4IGZsZXgtd3JhcFwiXHJcbiAgICA+XHJcbiAgICAgIDxQb3N0TGlzdCB7cG9zdHN9IC8+XHJcbiAgICA8L2Rpdj5cclxuICAgIDxkaXZcclxuICAgICAgY2xhc3M9XCJsZzp3LTEvNCBtZDp3LTEvMyBiZy13aGl0ZSBmbGV4IGZsZXgtY29sIG1kOm1sLWF1dG8gdy1mdWxsIG1kOnB5LTggbXQtOCBtZDptdC0wXCJcclxuICAgID5cclxuICAgICAgPFNpZGViYXIgLz5cclxuICAgIDwvZGl2PlxyXG4gIDwvZGl2PlxyXG48L3NlY3Rpb24+IC0tPlxyXG4iXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7OztBQUFlLGlCQUFRLEVBQUUsRUFBRSxLQUFLLEVBQUUsUUFBUSxFQUFFLFdBQVcsRUFBRSxFQUFFO0FBQzNELEVBQUUsT0FBTyxLQUFLO0FBQ2QsS0FBSyxLQUFLO0FBQ1YsTUFBTSxDQUFDLFdBQVcsR0FBRyxDQUFDLElBQUksUUFBUTtB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
