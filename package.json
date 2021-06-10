@@ -8,7 +8,7 @@
     "build": "sapper build --legacy",
     "build2": "sapper build --legacy && npm run export && node ./scripts/gh-pages.js",
     "b3": "sapper build --legacy && npm run export && node ./scripts/gh-pages.js",
-    "export": "sapper export --basepath webdesignninjas --legacy",
+    "export": "sapper export --legacy",
     "start": "node __sapper__/build",
     "cy:run": "cypress run",
     "cy:open": "cypress open",
